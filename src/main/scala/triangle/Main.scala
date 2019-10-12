@@ -18,7 +18,7 @@ object Main extends App {
 
   println("Drawing points...")
   val (a, b, c, first) = getFirstPoint
-  g.setColor(Color.green)
+  g.setColor(Color.magenta)
   setRandPoint(first, 100000L)
 
   println("Save file...")
