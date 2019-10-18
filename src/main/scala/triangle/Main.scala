@@ -1,7 +1,9 @@
 package triangle
 
+import akka.actor.ActorSystem
 import java.awt.Color
 import java.awt.image.BufferedImage
+import triangle.SaveActor.Save
 
 case class Point(x: Int, y: Int)
 
@@ -11,6 +13,8 @@ class StartPoint(override val x: Int, override val y: Int, n: List[Int]) extends
 
 object Main extends App {
   println("Starting")
+  val system = ActorSystem("triangle-app")
+
   val canvas = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_RGB)
   val g = canvas.getGraphics
 
@@ -21,9 +25,11 @@ object Main extends App {
   g.setColor(Color.magenta)
   setRandPoint(first, 100000L)
 
-  println("Save file...")
-  javax.imageio.ImageIO.write(canvas, "png", new java.io.File("drawing.png"))
-  println("Completed")
+  try {
+    system.actorOf(SaveActor.props(), "save-actor") ! Save(canvas)
+  } finally {
+    system.terminate()
+  }
 
   def getFirstPoint: (StartPoint, StartPoint, StartPoint, Point) = {
     g.setColor(Color.red)
