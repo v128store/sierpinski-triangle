@@ -1,22 +1,19 @@
 package triangle
 
-import akka.actor.ActorSystem
 import java.awt.Color
 import java.awt.image.BufferedImage
-import triangle.SaveActor.Save
 
 case class Point(x: Int, y: Int)
 
-class StartPoint(override val x: Int, override val y: Int, n: List[Int]) extends Point(x,y) {
+class StartPoint(override val x: Int, override val y: Int, n: List[Int]) extends Point(x, y) {
   val nums: List[Int] = n
 }
 
 object Main extends App {
-  println("Starting")
-  val system = ActorSystem("triangle-app")
+  println("Starting...")
 
   val canvas = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_RGB)
-  val g = canvas.getGraphics
+  val g      = canvas.getGraphics
 
   val random = scala.util.Random
 
@@ -25,22 +22,20 @@ object Main extends App {
   g.setColor(Color.magenta)
   setRandPoint(first, 100000L)
 
-  try {
-    system.actorOf(SaveActor.props(), "save-actor") ! Save(canvas)
-  } finally {
-    system.terminate()
-  }
+  println("Save file...")
+  javax.imageio.ImageIO.write(canvas, "png", new java.io.File("drawing.png"))
+  println("Completed")
 
   def getFirstPoint: (StartPoint, StartPoint, StartPoint, Point) = {
     g.setColor(Color.red)
-    val a = new StartPoint(random.nextInt(950),random.nextInt(950),List(1,2,3,4,5))
+    val a = new StartPoint(random.nextInt(950), random.nextInt(950), List(1, 2, 3, 4, 5))
     paintPoint(a)
-    val b = new StartPoint(random.nextInt(950),random.nextInt(950),List(6,7,8,9,10))
+    val b = new StartPoint(random.nextInt(950), random.nextInt(950), List(6, 7, 8, 9, 10))
     paintPoint(b)
-    val c = new StartPoint(random.nextInt(950),random.nextInt(950),List(11,12,13,14,15))
+    val c = new StartPoint(random.nextInt(950), random.nextInt(950), List(11, 12, 13, 14, 15))
     paintPoint(c)
     g.setColor(Color.blue)
-    val first = Point(random.nextInt(950),random.nextInt(950))
+    val first = Point(random.nextInt(950), random.nextInt(950))
     paintPoint(first)
     (a, b, c, first)
   }
@@ -53,13 +48,14 @@ object Main extends App {
   def setRandPoint(point: Point, i: Long): Unit = {
     if (i > 0) {
       val num = random.nextInt(15) + 1
-      val p: Point = if (a.nums.contains(num))
-        calcPoint(a, point)
-      else if (b.nums.contains(num))
-        calcPoint(b, point)
-      else if (c.nums.contains(num))
-        calcPoint(c, point)
-      else Point(0,0)
+      val p: Point =
+        if (a.nums.contains(num))
+          calcPoint(a, point)
+        else if (b.nums.contains(num))
+          calcPoint(b, point)
+        else if (c.nums.contains(num))
+          calcPoint(c, point)
+        else Point(0, 0)
 
       paintPoint(p)
       setRandPoint(p, i - 1)
@@ -69,6 +65,6 @@ object Main extends App {
   def calcPoint(p1: Point, p2: Point): Point = {
     val x = if (p1.x > p2.x) ((p1.x - p2.x) / 2) + p2.x else ((p2.x - p1.x) / 2) + p1.x
     val y = if (p1.y > p2.y) ((p1.y - p2.y) / 2) + p2.y else ((p2.y - p1.y) / 2) + p1.y
-    Point(x,y)
+    Point(x, y)
   }
 }
